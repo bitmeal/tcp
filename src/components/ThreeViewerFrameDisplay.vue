@@ -61,8 +61,8 @@ export default {
       const labelDist = this.framecamera.position.distanceTo(AXvector.projectOnVector(this.framecamera.position));
       
       labelpos.project(this.framecamera);
-      labelpos.x = Math.round((0.5 + labelpos.x * 0.9) * (canvas.width / window.devicePixelRatio));
-      labelpos.y = Math.round((0.5 - labelpos.y *0.9) * (canvas.height / window.devicePixelRatio));
+      labelpos.x = Math.round((0.5 + labelpos.x * 0.7) * (canvas.width / window.devicePixelRatio));
+      labelpos.y = Math.round((0.5 - labelpos.y *0.7) * (canvas.height / window.devicePixelRatio));
 
       var label = document.getElementById(id);
       label.style.top = `${labelpos.y}px`;
@@ -116,8 +116,8 @@ export default {
     position:absolute;
     padding: 0!important;
     margin: 0!important;
-    transform: translate(50%,0%);
-    -webkit-transform: translate(50%, 0%);
+    transform: translate(-50%,-50%);
+    -webkit-transform: translate(-50%, -50%);
     -webkit-text-stroke: 1px #505050;
     -webkit-text-fill-color: white;
     font-weight:900;

@@ -2,18 +2,28 @@
   <v-app>
     <!-- <v-app-bar app color="primary" dark>
       <v-spacer></v-spacer>
-    </v-app-bar> -->
+    </v-app-bar>-->
 
     <v-main>
       <three-viewer ref="viewer" :camera-up="[0,0,-1]" :camera-position="[0.2,0.2,0.2]">
         <three-viewer-frame-display />
         <three-viewer-css-2d-renderer />
-        <v-btn color="green" dark @click="showTF=true" x-large fab absolute bottom right class="mb-15 mr-3">
+        <v-btn
+          color="green"
+          dark
+          @click="showTF=true"
+          x-large
+          fab
+          absolute
+          bottom
+          right
+          class="mb-15 mr-3"
+        >
           <v-icon dark large>mdi-matrix</v-icon>
         </v-btn>
       </three-viewer>
     </v-main>
-    <v-navigation-drawer :app="true" absolute permanent right width="320px">
+    <v-navigation-drawer :app="true" absolute permanent right width="330px">
       <template v-slot:prepend>
         <v-list-item two-line>
           <v-list-item-avatar>
@@ -53,7 +63,9 @@
               v-model="translation[ax]"
               :label="ax.toUpperCase()"
               dense
-            ></v-text-field>
+            >
+              <template slot="append">m</template>
+            </v-text-field>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -65,12 +77,12 @@
         </v-list-item-icon>
         <v-list-item-content>Rotation</v-list-item-content>
         <v-list-item-action>
-          <v-btn icon>
-            <v-icon @click="addRotation" small>mdi-plus</v-icon>
+          <v-btn color="green" dark x-small fab>
+            <v-icon dark @click="addRotation">mdi-plus</v-icon>
           </v-btn>
         </v-list-item-action>
       </v-list-item>
-      <v-list dense class="ml-4">
+      <v-list dense class="ml-4 mr-1 mb-2 rotcontainer">
         <draggable :group="{name: 'rotations'}" handle=".draggable-handle" v-model="rotations">
           <v-list-item v-for="rotation in rotations" :key="rotation.id">
             <v-list-item-icon class="mt-6 draggable-handle">
@@ -89,7 +101,9 @@
                   >{{ax.name}}</v-btn>
                 </v-btn-toggle>
               </v-list-item-title>
-              <v-text-field type="number" :hide-details="true" v-model="rotation.value" dense></v-text-field>
+              <v-text-field type="number" :hide-details="true" v-model="rotation.value" dense>
+                <template slot="append">°</template>
+              </v-text-field>
             </v-list-item-content>
             <v-list-item-action>
               <v-btn icon>
@@ -102,14 +116,25 @@
     </v-navigation-drawer>
     <v-dialog v-model="showTF" max-width="450">
       <v-card>
-        <v-btn color="red" dark fab x-small absolute top right class="mt-7 mr-0" @click="showTF=false">
+        <v-btn
+          color="red"
+          dark
+          fab
+          x-small
+          absolute
+          top
+          right
+          class="mt-7 mr-0"
+          @click="showTF=false"
+        >
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-card-title class="headline">Transformation Matrix</v-card-title>
+        <v-card-title class="headline">Transformation</v-card-title>
 
         <v-card-text>
           <v-divider class="mb-3"></v-divider>
           <h3>Forward</h3>
+          <span>Transformation Matrix</span>
           <v-container>
             <v-row v-for="row in [0,1,2,3]" :key="`${row}`" no-gutters>
               <v-col
@@ -120,8 +145,20 @@
               >{{ Math.round(TF.elements[4*col + row]*100000)/100000 }}</v-col>
             </v-row>
           </v-container>
+          <span>Quaternion:</span>
+          <v-container>
+            <v-row no-gutters>
+              <v-col
+                v-for="elem in ['x', 'y', 'z', 'w']"
+                :key="`${elem}`"
+                cols="2"
+                class="mx-auto px-0"
+              >{{ Math.round(quaternion[elem]*100000)/100000 }}</v-col>
+            </v-row>
+          </v-container>
           <v-divider class="mb-3"></v-divider>
           <h3>Backwards</h3>
+          <span>Transformation Matrix</span>
           <v-container>
             <v-row v-for="row in [0,1,2,3]" :key="`${row}`" no-gutters>
               <v-col
@@ -130,6 +167,17 @@
                 cols="2"
                 class="mx-auto px-0"
               >{{ Math.round(inverseTF.elements[4*col + row]*100000)/100000 }}</v-col>
+            </v-row>
+          </v-container>
+          <span>Quaternion:</span>
+          <v-container>
+            <v-row no-gutters>
+              <v-col
+                v-for="elem in ['x', 'y', 'z', 'w']"
+                :key="`${elem}`"
+                cols="2"
+                class="mx-auto px-0"
+              >{{ Math.round(inverseQuaternion[elem]*100000)/100000 }}</v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -281,7 +329,7 @@ export default {
     this.scene.add(this.toolLabel);
 
     // make flange cylinder
-    var geometry = new THREE.CylinderGeometry(0.15, 0.15, 0.025, 64);
+    var geometry = new THREE.CylinderGeometry(0.1, 0.1, 0.025, 64);
     const material = new THREE.MeshStandardMaterial({
       color: 0x3366bb,
       opacity: 0.6,
@@ -328,7 +376,13 @@ export default {
     },
     inverseTF: function() {
       return new THREE.Matrix4().getInverse(this.TF);
-    }
+    },
+    quaternion: function() {
+      return (new THREE.Quaternion()).setFromRotationMatrix(this.TF);
+    },
+    inverseQuaternion: function() {
+      return (new THREE.Quaternion()).setFromRotationMatrix(this.inverseTF);
+    },
   },
   watch: {
     // translationInTool: function() {
@@ -373,7 +427,35 @@ export default {
   cursor: move;
   cursor: -webkit-grabbing;
 }
-html, body {
+html,
+body {
   overflow: hidden !important;
+}
+.v-navigation-drawer__content {
+  display: flex;
+  flex-direction: column;
+}
+.v-list-item {
+  flex: unset !important;
+}
+.v-input input::-webkit-outer-spin-button,
+.v-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+.rotcontainer {
+  flex: 1;
+  overflow-y: scroll;
+}
+.rotcontainer::-webkit-scrollbar {
+  width: 10px;
+}
+.rotcontainer::-webkit-scrollbar-track {
+  background: #ebebeb;
+  border-left: none;
+  border-radius: 5px;
+}
+.rotcontainer::-webkit-scrollbar-thumb {
+  background: #66ddff;
+  border-radius: 5px;
 }
 </style>
