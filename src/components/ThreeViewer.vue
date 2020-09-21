@@ -136,7 +136,7 @@ export default {
       this.$nextTick(() => {
         this.renderer.setSize(
           container.clientWidth,
-          window.innerHeight - container.getBoundingClientRect().top
+          window.innerHeight - container.getBoundingClientRect().top - 2
         );
         this.camera.aspect = container.clientWidth / container.clientHeight;
         this.camera.updateProjectionMatrix();
@@ -167,12 +167,12 @@ export default {
     this.animate();
   },
   watch: {
-    cameraUp: function(val) {
-      this.camera.up.set(...val);
-    },
-    cameraPosition: function(val) {
-      this.camera.position.set(...val);
-    }
+    // cameraUp: function(val) {
+    //   this.camera.up.set(...val);
+    // },
+    // cameraPosition: function(val) {
+    //   this.camera.position.set(...val);
+    // }
   },
   beforeDestroy: function() {
     window.removeEventListener("resize", this.resizeRenderer);

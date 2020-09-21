@@ -1,78 +1,79 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <!-- <v-app-bar app color="primary" dark>
       <v-spacer></v-spacer>
-      <!-- <v-btn icon>
-        <v-icon @click="toggleCube()" large :color="cubeBtnColor()">mdi-cube-outline</v-icon>
-      </v-btn>-->
-    </v-app-bar>
+    </v-app-bar> -->
 
     <v-main>
       <three-viewer ref="viewer" :camera-up="[0,0,-1]" :camera-position="[0.2,0.2,0.2]">
         <three-viewer-frame-display />
         <three-viewer-css-2d-renderer />
+        <v-btn color="green" dark @click="showTF=true" x-large fab absolute bottom right class="mb-15 mr-3">
+          <v-icon dark large>mdi-matrix</v-icon>
+        </v-btn>
       </three-viewer>
     </v-main>
-      <v-navigation-drawer :app="true" absolute permanent right width="320px">
-        <template v-slot:prepend>
-          <v-list-item two-line>
-            <v-list-item-avatar>
-              <v-icon large>mdi-axis</v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>Tool Transform</v-list-item-content>
-            <v-list-item-action>
-              <v-btn color="green" icon x-large>
-                <v-icon large>mdi-matrix</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
-        </template>
-        <v-divider></v-divider>
-        <!-- translation -->
-        <v-list-item>
+    <v-navigation-drawer :app="true" absolute permanent right width="320px">
+      <template v-slot:prepend>
+        <v-list-item two-line>
+          <v-list-item-avatar>
+            <v-icon large>mdi-axis</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>Tool Transform</v-list-item-content>
+          <!-- <v-list-item-action>
+            <v-btn color="green" @click="showTF=true" icon x-large>
+              <v-icon large>mdi-matrix</v-icon>
+            </v-btn>
+          </v-list-item-action>-->
+        </v-list-item>
+      </template>
+      <v-divider></v-divider>
+      <!-- translation -->
+      <v-list-item>
+        <v-list-item-icon>
+          <v-icon>mdi-axis-arrow</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Translation</v-list-item-title>
+          <v-list-item-subtitle>{{ translationInTool ? 'in Tool' : 'in Flange' }}</v-list-item-subtitle>
+        </v-list-item-content>
+        <v-list-item-action>
+          <v-switch v-model="translationInTool"></v-switch>
+        </v-list-item-action>
+      </v-list-item>
+      <v-list dense class="ml-4">
+        <v-list-item v-for="ax in ['x', 'y', 'z']" :key="ax">
           <v-list-item-icon>
-            <v-icon>mdi-axis-arrow</v-icon>
+            <v-icon>{{`mdi-axis-${ax}-arrow`}}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Translation</v-list-item-title>
-            <v-list-item-subtitle>{{ translationInTool ? 'in Tool' : 'in Flange' }}</v-list-item-subtitle>
+            <v-text-field
+              type="number"
+              :hide-details="true"
+              v-model="translation[ax]"
+              :label="ax.toUpperCase()"
+              dense
+            ></v-text-field>
           </v-list-item-content>
-          <v-list-item-action>
-            <v-switch v-model="translationInTool"></v-switch>
-          </v-list-item-action>
         </v-list-item>
-        <v-list dense class="ml-4">
-          <v-list-item v-for="ax in ['x', 'y', 'z']" :key="ax">
-            <v-list-item-icon>
-              <v-icon>{{`mdi-axis-${ax}-arrow`}}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-text-field
-                type="number"
-                :hide-details="true"
-                v-model="translation[ax]"
-                :label="ax.toUpperCase()"
-                dense
-              ></v-text-field>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-divider></v-divider>
-        <!-- rotations -->
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-backup-restore</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Rotation</v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon>
-              <v-icon @click="addRotation" small>mdi-plus</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-        <v-list dense class="ml-4">
+      </v-list>
+      <v-divider></v-divider>
+      <!-- rotations -->
+      <v-list-item>
+        <v-list-item-icon>
+          <v-icon>mdi-backup-restore</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>Rotation</v-list-item-content>
+        <v-list-item-action>
+          <v-btn icon>
+            <v-icon @click="addRotation" small>mdi-plus</v-icon>
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+      <v-list dense class="ml-4">
+        <draggable :group="{name: 'rotations'}" handle=".draggable-handle" v-model="rotations">
           <v-list-item v-for="rotation in rotations" :key="rotation.id">
-            <v-list-item-icon class="mt-6">
+            <v-list-item-icon class="mt-6 draggable-handle">
               <v-icon>{{`mdi-axis-${rotation.axis.axis}-rotate-${(rotation.value >= 0) ? 'counter' : ''}clockwise`}}</v-icon>
               {{rotation.newFrame ? "'" : ""}}
             </v-list-item-icon>
@@ -96,9 +97,44 @@
               </v-btn>
             </v-list-item-action>
           </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
-    <!-- </v-main> -->
+        </draggable>
+      </v-list>
+    </v-navigation-drawer>
+    <v-dialog v-model="showTF" max-width="450">
+      <v-card>
+        <v-btn color="red" dark fab x-small absolute top right class="mt-7 mr-0" @click="showTF=false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-card-title class="headline">Transformation Matrix</v-card-title>
+
+        <v-card-text>
+          <v-divider class="mb-3"></v-divider>
+          <h3>Forward</h3>
+          <v-container>
+            <v-row v-for="row in [0,1,2,3]" :key="`${row}`" no-gutters>
+              <v-col
+                v-for="col in [0,1,2,3]"
+                :key="`${row}_${col}`"
+                cols="2"
+                class="mx-auto px-0"
+              >{{ Math.round(TF.elements[4*col + row]*100000)/100000 }}</v-col>
+            </v-row>
+          </v-container>
+          <v-divider class="mb-3"></v-divider>
+          <h3>Backwards</h3>
+          <v-container>
+            <v-row v-for="row in [0,1,2,3]" :key="`${row}`" no-gutters>
+              <v-col
+                v-for="col in [0,1,2,3]"
+                :key="`${row}_${col}`"
+                cols="2"
+                class="mx-auto px-0"
+              >{{ Math.round(inverseTF.elements[4*col + row]*100000)/100000 }}</v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -114,6 +150,8 @@ import { mdiDeleteForever } from "@mdi/js";
 import { v4 as uuidv4 } from "uuid";
 import ThreeViewerCSS2DRenderer from "./components/ThreeViewerCSS2DRenderer.vue";
 
+import draggable from "vuedraggable";
+
 // var unitRot = [1,0,0,0,1,0,0,0,1];
 var rotationProto = {
   id: null,
@@ -127,7 +165,8 @@ export default {
   components: {
     "three-viewer": ThreeViewer,
     "three-viewer-frame-display": ThreeViewerFrameDisplay,
-    "three-viewer-css-2d-renderer": ThreeViewerCSS2DRenderer
+    "three-viewer-css-2d-renderer": ThreeViewerCSS2DRenderer,
+    draggable: draggable
   },
 
   data: () => ({
@@ -148,6 +187,7 @@ export default {
       { name: "Y'", model: { axis: "y", newFrame: true } },
       { name: "Z'", model: { axis: "z", newFrame: true } }
     ],
+    showTF: false,
     mdi: {
       mdiDeleteForever: mdiDeleteForever
     }
@@ -166,24 +206,28 @@ export default {
       });
     },
     updatePosition: function() {
-      var pos = this.translation;
-      var Vtrans = new THREE.Vector3(pos.x, pos.y, pos.z);
-      if (this.translationInTool) {
-        // var invTF = new THREE.Matrix4();
-        // invTF.getInverse(this.TF);
-        Vtrans.multiplyScalar(-1).applyMatrix4(this.TF);
-      }
-
-      this.tool.position = Vtrans;
-      this.toolLabel.position = Vtrans;
+      // this.tool.matrix = this.TF;
+      this.tool.position.setFromMatrixPosition(this.TF);
+      this.tool.quaternion.setFromRotationMatrix(this.TF);
+      this.toolLabel.position.setFromMatrixPosition(this.TF);
       // this.toolLabel.position = new THREE.Vector3(-0.01,-0.01,-0.01).add(Vtrans);
 
+      // var Vtrans = new THREE.Vector3();
+      // Vtrans.setFromMatrixPosition(this.TF);
 
+      var lineTF = this.translationInTool ? this.TF : new THREE.Matrix4();
+      var translation = new THREE.Vector3(
+        this.translation.x,
+        this.translation.y,
+        this.translation.z
+      );
       var points = [];
-      points.push(new THREE.Vector3(0,0,0));
-      points.push(new THREE.Vector3(0,0,Vtrans.z));
-      points.push(new THREE.Vector3(0,Vtrans.y,Vtrans.z));
-      points.push(Vtrans);
+      points.push(new THREE.Vector3(0, 0, 0).applyMatrix4(lineTF));
+      points.push(new THREE.Vector3(0, 0, translation.z).applyMatrix4(lineTF));
+      points.push(
+        new THREE.Vector3(0, translation.y, translation.z).applyMatrix4(lineTF)
+      );
+      points.push(translation.applyMatrix4(lineTF));
 
       var geometry = new THREE.BufferGeometry().setFromPoints(points);
 
@@ -217,10 +261,12 @@ export default {
     var flangeText = document.createElement("div");
     flangeText.className = "THREEcss2Dlabel";
     flangeText.textContent = "flange";
-    flangeText.style = "transform: "
+    flangeText.style = "transform: ";
 
     this.flangeLabel = new CSS2DObject(flangeText);
-    this.flangeLabel.position = new THREE.Vector3(0,0,-0.02).add(this.flange.position);
+    this.flangeLabel.position = new THREE.Vector3(0, 0, -0.02).add(
+      this.flange.position
+    );
     this.scene.add(this.flangeLabel);
 
     // tool
@@ -229,12 +275,18 @@ export default {
     toolText.textContent = "tool";
 
     this.toolLabel = new CSS2DObject(toolText);
-    this.toolLabel.position = new THREE.Vector3(-0.01,-0.01,-0.01).add(this.tool.position);
+    this.toolLabel.position = new THREE.Vector3(-0.01, -0.01, -0.01).add(
+      this.tool.position
+    );
     this.scene.add(this.toolLabel);
 
     // make flange cylinder
     var geometry = new THREE.CylinderGeometry(0.15, 0.15, 0.025, 64);
-    const material = new THREE.MeshStandardMaterial({ color: 0x3366bb, opacity: 0.6, transparent: true });
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x3366bb,
+      opacity: 0.6,
+      transparent: true
+    });
     var cylinder = new THREE.Mesh(geometry, material);
     cylinder.rotation.x = 0.5 * Math.PI;
     cylinder.position.z = -0.0125;
@@ -263,23 +315,36 @@ export default {
         }
       }, new THREE.Matrix4());
 
+      var pos = this.translation;
+      var Vtrans = new THREE.Vector3(pos.x, pos.y, pos.z);
+      if (this.translationInTool) {
+        // var invTF = new THREE.Matrix4();
+        // invTF.getInverse(this.TF);
+        Vtrans.multiplyScalar(-1).applyMatrix4(TF);
+      }
+      TF.setPosition(Vtrans);
+
       return TF;
+    },
+    inverseTF: function() {
+      return new THREE.Matrix4().getInverse(this.TF);
     }
   },
   watch: {
-    translationInTool: function() {
+    // translationInTool: function() {
+    //   this.updatePosition();
+    // },
+    TF: function() {
+      // this.tool.quaternion.setFromRotationMatrix(val);
       this.updatePosition();
-    },
-    TF: function(val) {
-      this.tool.quaternion.setFromRotationMatrix(val);
-    },
-    translation: {
-      handler: function(val) {
-        console.log(val);
-        this.updatePosition();
-      },
-      deep: true
     }
+    // translation: {
+    //   handler: function(val) {
+    //     console.log(val);
+    //     this.updatePosition();
+    //   },
+    //   deep: true
+    // }
     // rotations: {
     //   handler: function(val) {
     //     console.log(val);
@@ -303,5 +368,12 @@ export default {
   -webkit-text-fill-color: white;
   font-weight: 600;
   font-size: 12pt;
+}
+.draggable-handle {
+  cursor: move;
+  cursor: -webkit-grabbing;
+}
+html, body {
+  overflow: hidden !important;
 }
 </style>
