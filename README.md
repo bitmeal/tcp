@@ -5,6 +5,8 @@ Supplies you with:
 * Inverse transformation matrix
 * Euler angles you used
 
+![screenshot](screenshot.PNG)
+
 ## Project setup
 ```
 npm install
