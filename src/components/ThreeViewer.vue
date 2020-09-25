@@ -96,7 +96,9 @@ export default {
     mountTHREE: function() {
       var container = document.getElementById("THREEcontainer");
       this.renderer.setSize(container.clientWidth, container.clientHeight);
+      this.renderer.domElement.classList.add("THREEcanvas");
       container.appendChild(this.renderer.domElement);
+
 
       var controls = new OrbitControls(this.camera, this.renderer.domElement);
       controls.enableDamping = true;
@@ -136,7 +138,7 @@ export default {
       this.$nextTick(() => {
         this.renderer.setSize(
           container.clientWidth,
-          window.innerHeight - container.getBoundingClientRect().top - 2
+          window.innerHeight - container.getBoundingClientRect().top - 1
         );
         this.camera.aspect = container.clientWidth / container.clientHeight;
         this.camera.updateProjectionMatrix();
@@ -184,6 +186,9 @@ export default {
 body {
   margin: 0;
   overflow: hidden;
+}
+.THREEcanvas {
+  outline: none;
 }
 .THREEcontainer {
   align-items: center;
