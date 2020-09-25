@@ -8,7 +8,7 @@ Computes transformation matrix from offset and an arbitrary set of single rotati
 * Euler angles (as you input them)
 
 
-![screenshot](screenshot.PNG)
+![screenshot](public/screenshot.PNG)
 
 ## setup
 ```
