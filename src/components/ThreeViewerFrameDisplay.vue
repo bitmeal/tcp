@@ -1,9 +1,11 @@
 <template>
+  <div class="THREEframecontainerWrapper" id="THREEframecontainerWrapper">
     <div class="THREEframecontainer" id="THREEframecontainer">
         <div class="axeslabel" id="frameXcontainer">X</div>
         <div class="axeslabel" id="frameYcontainer">Y</div>
         <div class="axeslabel" id="frameZcontainer">Z</div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -19,6 +21,7 @@ export default {
       framerenderer: null,
       framescene: null,
       framecamera: null,
+      framecontainer: null,
   }),
   methods: {
     //   parentAnimate: function() {
@@ -26,9 +29,9 @@ export default {
     init: function () {
       // AXES HELPER OVERLAY SCENE
       this.framerenderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-      var framecontainer = document.getElementById('THREEframecontainer');
-      this.framerenderer.setSize(framecontainer.clientWidth, framecontainer.clientHeight);
-      framecontainer.appendChild(this.framerenderer.domElement);
+      this.framecontainer = document.getElementById('THREEframecontainer');
+      this.framerenderer.setSize(this.framecontainer.clientWidth, this.framecontainer.clientHeight);
+      this.framecontainer.appendChild(this.framerenderer.domElement);
       this.framescene = new THREE.Scene();
       // this.framescene.background = new THREE.Color( 0xf0f0ff );
       this.framerenderer.setClearColor( 0x000000, 0 );
@@ -65,8 +68,8 @@ export default {
       labelpos.y = Math.round((0.5 - labelpos.y *0.7) * (canvas.height / window.devicePixelRatio));
 
       var label = document.getElementById(id);
-      label.style.top = `${labelpos.y}px`;
-      label.style.left = `${labelpos.x}px`;
+      label.style.top = `${100*labelpos.y / this.framecontainer.clientHeight}%`;
+      label.style.left = `${100*labelpos.x / this.framecontainer.clientWidth}%`;
       label.style.opacity = (labelDist > originDist) ? Math.min(0.25 + 1/(labelDist - originDist), 1) : 1;
     },
     syncCoordinateFrames: function() {
@@ -95,7 +98,7 @@ export default {
 </script>
 
 <style>
-  .THREEframecontainer {
+  .THREEframecontainerWrapper {
     padding: 0!important;
     margin: 0!important;
     pointer-events: none;
@@ -104,6 +107,14 @@ export default {
     position:absolute;
     left:10px;
     bottom:10px;
+  }
+  .THREEframecontainer {
+    padding: 0!important;
+    margin: 0!important;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    position:relative;
   }
   .axeslabel {
     -webkit-touch-callout: none;

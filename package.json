@@ -1,5 +1,5 @@
 {
-  "name": "transformer",
+  "name": "tcp-transformer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "gh-pages:deploy": "npm run build && vue-cli-ghpages"
+    "gh-pages:deploy": "npm run build && npx vue-cli-ghpages"
   },
   "main": "background.js",
   "dependencies": {
@@ -21,6 +21,7 @@
     "three": "^0.119.1",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",
+    "vue-cli-ghpages": "^1.0.0",
     "vuedraggable": "^2.24.1",
     "vuetify": "^2.2.11"
   },
