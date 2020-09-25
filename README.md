@@ -8,9 +8,14 @@ Computes transformation matrix from offset and an arbitrary set of single rotati
 * Euler angles (as you input them)
 
 
+[![WEB-APP HERE](public/buttonwebapp.png)](https://bitmeal.github.io/tcp/)
+
+
 ![screenshot](public/screenshot.PNG)
 
-## setup
+## Electron App and Development
+
+### setup
 ```
 npm install
 ```

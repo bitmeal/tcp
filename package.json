@@ -10,7 +10,7 @@
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "gh-pages:deploy": "npm run build && npx vue-cli-ghpages"
+    "gh-pages:deploy": "cross-env GH_PAGES_DEPLOY=true NODE_ENV=production vue-cli-service build && npx vue-cli-ghpages"
   },
   "main": "background.js",
   "dependencies": {

@@ -9,12 +9,15 @@ module.exports = {
                 return args;
             })
     },
-    "pluginOptions": {
-        "electronBuilder": {
-            "builderOptions": {
-                "directories": {
-                    "buildResources": "resources",
-                    "output": "release"
+    publicPath: (process.env.NODE_ENV === 'production' && process.env.GH_PAGES_DEPLOY === 'true')
+    ? '/tcp/'
+    : '/',
+    pluginOptions: {
+        electronBuilder: {
+            builderOptions: {
+                directories: {
+                    buildResources: "resources",
+                    output: "release"
                 }
             }
         }
